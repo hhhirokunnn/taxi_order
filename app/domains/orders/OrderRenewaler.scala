@@ -1,7 +1,7 @@
 package domains.orders
 
-import models.orders.OrderStatus.{Accepted, Dispatched, Requested}
-import models.orders.{OrderAcceptParameter, OrderStatus}
+import models.orders.OrderStatus.{Accepted, Dispatched}
+import models.orders.OrderAcceptParameter
 import repositories.orders.{OrderAcceptFragment, OrderRecord, OrderSelector, OrderUpdater}
 import scalikejdbc.DBSession
 
@@ -9,12 +9,12 @@ import scala.util.Try
 
 class OrderRenewaler(order_id: Int)(implicit session: DBSession) {
 
-  def makeAcceptFrom(param: OrderAcceptParameter): Either[OrderRenewalerError, Unit] = {
+  def makeAcceptFrom(param: OrderAcceptParameter, crew_id: Int): Either[OrderRenewalerError, Unit] = {
     val selector = new OrderSelector()
     for {
       order <- find(selector.selectRequestedOrderBy)
-      _ <- ensureCrewId(order, param.crew_id)
-      _ <- update(param)
+      _ <- ensureUpdatedAt(order, order.updated_at)
+      _ <- update(param, crew_id)
     } yield {}
   }
 
@@ -43,15 +43,18 @@ class OrderRenewaler(order_id: Int)(implicit session: DBSession) {
     }
   }
 
-  private def toFragment(parameter: OrderAcceptParameter) = {
-    OrderAcceptFragment(
-      crew_id = parameter.crew_id,
-      estimated_dispatched_at = parameter.estimated_dispatched_at,
-    )
+  private def ensureUpdatedAt(orderRecord: OrderRecord, date: String) = {
+    if (orderRecord.updated_at == date) Right({}) else Left(new OptimisticLock(orderRecord.id))
   }
 
-  private def update(parameter: OrderAcceptParameter): Either[OrderRenewalerError, Unit] = Try {
-    val fragment = toFragment(parameter)
+  private def toFragment(parameter: OrderAcceptParameter, crew_id: Int) =
+    OrderAcceptFragment(
+      crew_id = crew_id,
+      estimated_dispatched_at = parameter.estimated_dispatched_at,
+    )
+
+  private def update(parameter: OrderAcceptParameter, crew_id: Int): Either[OrderRenewalerError, Unit] = Try {
+    val fragment = toFragment(parameter, crew_id)
     new OrderUpdater(order_id).makeAcceptFrom(fragment)
   }.toEither.left.map(new UnexpectedOrderRenewalError(_))
 
@@ -65,9 +68,9 @@ class OrderRenewaler(order_id: Int)(implicit session: DBSession) {
 
   private def find(finder: Int => Option[OrderRecord]): Either[OrderRenewalerError, OrderRecord] = Try {
     finder(order_id)
-    }.toEither match {
-      case Right(Some(order)) => Right(order)
-      case Right(_) => Left(new NoFoundOrderError(order_id))
-      case Left(e) => Left(new UnexpectedOrderRenewalError(e))
-    }
+  }.toEither match {
+    case Right(Some(order)) => Right(order)
+    case Right(_) => Left(new NoFoundOrderError(order_id))
+    case Left(e) => Left(new UnexpectedOrderRenewalError(e))
+  }
 }

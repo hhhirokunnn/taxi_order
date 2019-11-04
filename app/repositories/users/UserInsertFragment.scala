@@ -15,6 +15,6 @@ case class UserInsertFragment(
     Map(
       column.mail_address -> mail_address,
       column.password -> password,
-      column.member_type -> member_type
+      column.member_type -> member_type.label
     )
 }

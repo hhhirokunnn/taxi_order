@@ -3,7 +3,7 @@ package models.orders
 import play.api.libs.json.{Reads, Writes}
 import scalikejdbc.ParameterBinderFactory
 
-sealed abstract class OrderStatus(val label: String)
+abstract class OrderStatus(val label: String)
 
 object OrderStatus {
 

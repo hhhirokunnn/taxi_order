@@ -44,7 +44,7 @@ class OrderController @Inject()(
 
   def updateToAccept(order_id: Int): Action[OrderAcceptParameter] = Action(parse.json[OrderAcceptParameter]) { implicit request =>
     NamedDB(Symbol("taxi_order")) localTx { implicit session =>
-      new OrderRenewaler(order_id).makeAcceptFrom(request.body)
+      new OrderRenewaler(order_id).makeAcceptFrom(request.body, 1)
     } match {
       case Right(_) => Ok("")
       case Left(_) => BadRequest("")
