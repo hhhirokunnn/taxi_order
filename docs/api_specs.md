@@ -12,13 +12,11 @@ mail_address
     name: メールアドレス
     description: 既に登録されているメールアドレスでの新規登録はできません
     type: string
-    maxLegth: 100
     nullable: false
                 
 password
     name: パスワード
     type: string
-    maxLegth: 100
     nullable: false
 
 member_type
@@ -26,7 +24,6 @@ member_type
     descripion: 乗客か運転手かの情報
     type: string
     enum: [ passenger, crew ]
-    maxLegth: 100
     nullable: false
 ```
 
@@ -69,13 +66,11 @@ code
 mail_address
     name: メールアドレス
     type: string
-    maxLegth: 100
     nullable: false
                 
 password
     name: パスワード
     type: string
-    maxLegth: 100
     nullable: false
 ```
 
@@ -151,7 +146,6 @@ CookieにSessionTokenとして暗号化されたuserIdをもつ
 dispatch_point
     name: 配車地点
     type: string
-    maxLegth: 100
     nullable: false
 ```
 
@@ -224,39 +218,33 @@ order_id
 dispatch_point
     name: 配車地点
     type: string
-    maxLegth: 100
     nullable: false
                 
 order_status
     name: 注文状態
     type: string
-    enum: [ requested, accepted, completed ]
-    maxLegth: 100
+    enum: [ requested, accepted, dispatched, completed ]
     nullable: false
                 
 ordered_at
     name: 注文時間
     type: strig
-    maxLegth: 100
     nullable: false
 
 dispatch_estimate_time
     name: 配車完了予定時間
     type: strig
-    maxLegth: 100
     nullable: true
 
 dispatched_at
     name: 配車完了時間
     type: strig
-    maxLegth: 100
     nullable: true
 
 updated_at
     name: 注文の最新更新日時
     description: 楽観ロック用の更新日時
     type: strig
-    maxLegth: 100
     nullable: false
 ```
 
@@ -270,10 +258,10 @@ Content-Type: application/json
         "order_id": 1,
         "dispatch_point": "東京都新宿区西新宿２丁目８−１",
         "order_status": "requested",
-        "ordered_at": "2019-11-01"T01:50:11",
-        "estimated_dispatched_at": "2019-11-01"T01:50:11+09:00",
-        "dispatched_at": "2019-11-01"T01:50:11+09:00",
-        "updated_at": "2019-11-01"T01:50:11+09:00"
+        "ordered_at": "2019-11-01 01:50:11",
+        "estimated_dispatched_at": "2019-11-01 01:50:11",
+        "dispatched_at": "2019-11-01 01:50:11",
+        "updated_at": "2019-11-01 01:50:11"
     ]
 }
 ```
@@ -314,7 +302,7 @@ code
 200
 ```
 
-#### Body
+##### Body
 ```
 order_id
     name: 注文ID
@@ -324,27 +312,29 @@ order_id
 dispatch_point
     name: 配車地点
     type: string
-    maxLegth: 100
     nullable: false
 
 order_status
     name: 注文状態
     type: string
-    enum: [ requested, accepted, completed ]
-    maxLegth: 100
+    enum: [ requested, accepted, dispatched, completed ]
     nullable: false
 
 ordered_at
     name: 注文時間
     type: strig
-    maxLegth: 100
     nullable: false
 
 estimated_dispatched_at
     name: 配車完了予定時間
     type: strig
-    maxLegth: 100
     nullable: true
+
+updated_at
+    name: 注文の最新更新日時
+    description: 楽観ロック用の更新日時
+    type: strig
+    nullable: false
 ```
 
 
@@ -356,8 +346,9 @@ Content-Type: application/json
     "order_id": 1,
     "dispatch_point": "東京都新宿区西新宿２丁目８−１",
     "order_status": "requested",
-    "ordered_at": "2019-11-01"T01:50:11+09:00",
-    "estimated_dispatched_at": "2019-11-01"T01:50:11+09:00"
+    "ordered_at": "2019-11-01 01:50:11",
+    "estimated_dispatched_at": "2019-11-01 01:50:11",
+    "updated_at": "2019-11-01 01:50:11",
 }
 ```
 
@@ -402,14 +393,12 @@ order_id
 estimated_dispatched_at
     name: 配車完了予定時間
     type: strig
-    maxLegth: 100
     nullable: false
 
 updated_at
     name: 注文の最新更新日時
     description: 楽観ロック用の更新日時
     type: strig
-    maxLegth: 100
     nullable: false
 ```
 
@@ -419,8 +408,8 @@ Example
 Content-Type: application/json
 
 {
-    "estimated_dispatched_at": "2019-11-01"T01:50:11+09:00",
-    "updated_at": "2019-11-01"T01:50:11+09:00"
+    "estimated_dispatched_at": "2019-11-01 01:50:11",
+    "updated_at": "2019-11-01 01:50:11"
 }
 ```
 
