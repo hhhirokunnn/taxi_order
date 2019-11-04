@@ -1,6 +1,7 @@
 package domains.orders
 
-import models.orders.OrderAcceptParameter
+import models.orders.OrderStatus.{Accepted, Dispatched, Requested}
+import models.orders.{OrderAcceptParameter, OrderStatus}
 import repositories.orders.{OrderAcceptFragment, OrderRecord, OrderSelector, OrderUpdater}
 import scalikejdbc.DBSession
 
@@ -8,23 +9,32 @@ import scala.util.Try
 
 class OrderRenewaler(order_id: Int)(implicit session: DBSession) {
 
-  def makeAcceptFrom(param: OrderAcceptParameter): Either[OrderRenewalerError, Unit] = for {
-    order <- findRequestedOrder()
-    _ <- ensureCrewId(order, param.crew_id)
-    _ <- updateRequestedOrder(param)
-  } yield {}
+  def makeAcceptFrom(param: OrderAcceptParameter): Either[OrderRenewalerError, Unit] = {
+    val selector = new OrderSelector()
+    for {
+      order <- find(selector.selectRequestedOrderBy)
+      _ <- ensureCrewId(order, param.crew_id)
+      _ <- update(param)
+    } yield {}
+  }
 
-  def makeDispatched(crew_id: Int): Either[OrderRenewalerError, Unit] = for {
-    order <- findAcceptedOrder()
-    _ <- ensureCrewId(order, crew_id)
-    _ <- updateAcceptedOrder(crew_id)
-  } yield {}
+  def makeDispatched(crew_id: Int): Either[OrderRenewalerError, Unit] = {
+    val selector = new OrderSelector()
+    updateToNextStatus(crew_id, selector.selectAcceptedOrderBy)
+  }
 
-  def makeCompleted(crew_id: Int): Either[OrderRenewalerError, Unit] = for {
-    order <- findDispatchedOrder()
-    _ <- ensureCrewId(order, crew_id)
-    _ <- updateDispatchedOrder(crew_id)
-  } yield {}
+  def makeCompleted(crew_id: Int): Either[OrderRenewalerError, Unit] = {
+    val selector = new OrderSelector()
+    updateToNextStatus(crew_id, selector.selectDispatchedOrderBy)
+  }
+
+  private def updateToNextStatus(crew_id: Int, finder: Int => Option[OrderRecord]) = {
+    for {
+      order <- find(finder)
+      _ <- ensureCrewId(order, crew_id)
+      _ <- update(crew_id, order)
+    } yield {}
+  }
 
   private def ensureCrewId(order: OrderRecord, crew_id: Int) = {
     order.crew_id match {
@@ -33,11 +43,6 @@ class OrderRenewaler(order_id: Int)(implicit session: DBSession) {
     }
   }
 
-  private def updateRequestedOrder(parameter: OrderAcceptParameter): Either[OrderRenewalerError, Unit] = Try {
-    val fragment = toFragment(parameter)
-    new OrderUpdater(order_id).makeAcceptFrom(fragment)
-  }.toEither.left.map(new UnexpectedOrderRenewalError(_))
-
   private def toFragment(parameter: OrderAcceptParameter) = {
     OrderAcceptFragment(
       crew_id = parameter.crew_id,
@@ -45,35 +50,24 @@ class OrderRenewaler(order_id: Int)(implicit session: DBSession) {
     )
   }
 
-  private def updateAcceptedOrder(crew_id: Int): Either[OrderRenewalerError, Unit] = Try {
-    new OrderUpdater(order_id).makeDispatched(crew_id)
+  private def update(parameter: OrderAcceptParameter): Either[OrderRenewalerError, Unit] = Try {
+    val fragment = toFragment(parameter)
+    new OrderUpdater(order_id).makeAcceptFrom(fragment)
   }.toEither.left.map(new UnexpectedOrderRenewalError(_))
 
-  private def updateDispatchedOrder(crew_id: Int): Either[OrderRenewalerError, Unit] = Try {
-    new OrderUpdater(order_id).makeCompleted(crew_id)
+  private def update(crew_id: Int, order: OrderRecord): Either[OrderRenewalerError, Unit] = Try {
+    val updater = new OrderUpdater(order_id)
+    order.order_status match {
+      case Accepted => updater.makeDispatched(crew_id)
+      case Dispatched => updater.makeCompleted(crew_id)
+    }
   }.toEither.left.map(new UnexpectedOrderRenewalError(_))
 
-  private def findRequestedOrder(): Either[OrderRenewalerError, OrderRecord] = Try {
-    new OrderSelector().selectRequestedOrderBy(order_id)
-  }.toEither match {
-    case Right(Some(order)) => Right(order)
-    case Right(_) => Left(new NoFoundOrderError(order_id))
-    case Left(e) => Left(new UnexpectedOrderRenewalError(e))
-  }
-
-  private def findAcceptedOrder(): Either[OrderRenewalerError, OrderRecord] = Try {
-    new OrderSelector().selectAcceptedOrderBy(order_id)
-  }.toEither match {
-    case Right(Some(order)) => Right(order)
-    case Right(_) => Left(new NoFoundOrderError(order_id))
-    case Left(e) => Left(new UnexpectedOrderRenewalError(e))
-  }
-
-  private def findDispatchedOrder(): Either[OrderRenewalerError, OrderRecord] = Try {
-    new OrderSelector().selectDispatchedOrderBy(order_id)
-  }.toEither match {
-    case Right(Some(order)) => Right(order)
-    case Right(_) => Left(new NoFoundOrderError(order_id))
-    case Left(e) => Left(new UnexpectedOrderRenewalError(e))
-  }
+  private def find(finder: Int => Option[OrderRecord]): Either[OrderRenewalerError, OrderRecord] = Try {
+    finder(order_id)
+    }.toEither match {
+      case Right(Some(order)) => Right(order)
+      case Right(_) => Left(new NoFoundOrderError(order_id))
+      case Left(e) => Left(new UnexpectedOrderRenewalError(e))
+    }
 }

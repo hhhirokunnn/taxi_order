@@ -1,6 +1,6 @@
 package domains.orders
 
-import models.orders.{Order, OrderStatus}
+import models.orders.Order
 import repositories.orders.{OrderRecord, OrderSelector}
 import scalikejdbc.DBSession
 
@@ -8,39 +8,42 @@ import scala.util.Try
 
 class OrderFinder(implicit session: DBSession) {
 
-  def findBy(order_id: Int): Either[OrderFindError, Option[Order]] =
-    Try {
-      new OrderSelector().selectRequestingOrderBy(order_id).map(toResponse)
-    }.toEither.left.map(new UnexpectedOrderFindError(_))
-
-  def findRequestedOrderBy(order_id: Int): Either[OrderFindError, Option[Order]] =
-    Try {
-      new OrderSelector().selectRequestedOrderBy(order_id).map(toResponse)
-    }.toEither.left.map(new UnexpectedOrderFindError(_))
-
-  def findAcceptedOrderBy(order_id: Int): Either[OrderFindError, Option[Order]] =
-    Try {
-      new OrderSelector().selectAcceptedOrderBy(order_id).map(toResponse)
-    }.toEither.left.map(new UnexpectedOrderFindError(_))
-
-  def findDispatchedOrderBy(order_id: Int): Either[OrderFindError, Option[Order]] =
-    Try {
-      new OrderSelector().selectDispatchedOrderBy(order_id).map(toResponse)
-    }.toEither.left.map(new UnexpectedOrderFindError(_))
-
-  def findCompletedOrderBy(order_id: Int): Either[OrderFindError, Option[Order]] =
-    Try {
-      new OrderSelector().selectRequestingOrderBy(order_id).map(toResponse)
-    }.toEither.left.map(new UnexpectedOrderFindError(_))
-
-  def findRequestingOrderBy(passenger_id: Int): Either[OrderFindError, Option[Order]] =
-    Try {
-      new OrderSelector().selectRequestingOrderBy(passenger_id).map(toResponse)
-    }.toEither.left.map(new UnexpectedOrderFindError(_))
-
-
   def findAll(): Either[OrderFindError, Seq[Order]] = Try {
     new OrderSelector().selectAll().map(toResponse)
+  }.toEither.left.map(new UnexpectedOrderFindError(_))
+
+  def findBy(order_id: Int): Either[OrderFindError, Option[Order]] = {
+    val selector = new OrderSelector()
+    find(selector.selectRequestingOrderBy, order_id)
+  }
+
+  def findRequestedOrderBy(order_id: Int): Either[OrderFindError, Option[Order]] = {
+    val selector = new OrderSelector()
+    find(selector.selectRequestedOrderBy, order_id)
+  }
+
+  def findAcceptedOrderBy(order_id: Int): Either[OrderFindError, Option[Order]] = {
+    val selector = new OrderSelector()
+    find(selector.selectAcceptedOrderBy, order_id)
+  }
+
+  def findDispatchedOrderBy(order_id: Int): Either[OrderFindError, Option[Order]] = {
+    val selector = new OrderSelector()
+    find(selector.selectDispatchedOrderBy, order_id)
+  }
+
+  def findCompletedOrderBy(order_id: Int): Either[OrderFindError, Option[Order]] = {
+    val selector = new OrderSelector()
+    find(selector.selectRequestedOrderBy, order_id)
+  }
+
+  def findRequestingOrderBy(passenger_id: Int): Either[OrderFindError, Option[Order]] = {
+    val selector = new OrderSelector()
+    find(selector.selectRequestingOrderBy, passenger_id)
+  }
+
+  private def find(select: Int => Option[OrderRecord], id: Int) = Try {
+    select(id).map(toResponse)
   }.toEither.left.map(new UnexpectedOrderFindError(_))
 
   private def toResponse(record: OrderRecord): Order = {

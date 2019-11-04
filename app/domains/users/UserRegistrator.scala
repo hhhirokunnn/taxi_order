@@ -8,11 +8,10 @@ import scala.util.Try
 
 class UserRegistrator(parameter: UserRegisterParameter)(implicit session: DBSession) {
 
-  def createUserFrom(): Either[UserRegistratorError, Unit] =
-    ensureMailAddress() match {
-      case Some(_) => Left(new DuplicatedMailAddressError(parameter.mail_address))
-      case _ => insert()
-    }
+  def register(): Either[UserRegistratorError, Unit] = for {
+    _ <- ensureMailAddress()
+    _ <- insert()
+  } yield {}
 
   private def insert() = Try {
     UserInserter.insertFrom(toFragment)
@@ -20,6 +19,7 @@ class UserRegistrator(parameter: UserRegisterParameter)(implicit session: DBSess
 
   private def ensureMailAddress() = {
     UserSelector.selectUserBy(parameter.mail_address)
+      .toRight(new DuplicatedMailAddressError(parameter.mail_address))
   }
 
   private def toFragment = {

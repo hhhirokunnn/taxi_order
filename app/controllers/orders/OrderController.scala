@@ -17,14 +17,14 @@ class OrderController @Inject()(
 
   def create(): Action[OrderRequestParameter] = Action(parse.json[OrderRequestParameter]) { implicit request =>
     NamedDB(Symbol("taxi_order")) localTx { implicit session =>
-      new OrderRegistrator(1, request.body).createOrder()
+      new OrderRegistrator(1, request.body).register()
     } match {
       case Right(_) => Ok("")
       case Left(_) => BadRequest("")
     }
   }
 
-  def list(): Action[AnyContent] = Action { implicit request =>
+  def fetchAll(): Action[AnyContent] = Action { implicit request =>
     NamedDB(Symbol("taxi_order")) readOnly { implicit session =>
       new OrderFinder().findAll()
     } match {
@@ -42,7 +42,7 @@ class OrderController @Inject()(
     }
   }
 
-  def orderAccept(order_id: Int): Action[OrderAcceptParameter] = Action(parse.json[OrderAcceptParameter]) { implicit request =>
+  def updateToAccept(order_id: Int): Action[OrderAcceptParameter] = Action(parse.json[OrderAcceptParameter]) { implicit request =>
     NamedDB(Symbol("taxi_order")) localTx { implicit session =>
       new OrderRenewaler(order_id).makeAcceptFrom(request.body)
     } match {
@@ -51,7 +51,7 @@ class OrderController @Inject()(
     }
   }
 
-  def orderDispatched(order_id: Int): Action[AnyContent] = Action { implicit request =>
+  def updateToDispatched(order_id: Int): Action[AnyContent] = Action { implicit request =>
     NamedDB(Symbol("taxi_order")) localTx { implicit session =>
       new OrderRenewaler(order_id).makeDispatched(1)
     } match {
@@ -60,7 +60,7 @@ class OrderController @Inject()(
     }
   }
 
-  def orderCompleted(order_id: Int): Action[AnyContent] = Action { implicit request =>
+  def updateToCompleted(order_id: Int): Action[AnyContent] = Action { implicit request =>
     NamedDB(Symbol("taxi_order")) localTx { implicit session =>
       new OrderRenewaler(order_id).makeCompleted(1)
     } match {

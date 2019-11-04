@@ -15,7 +15,7 @@ class UserController @Inject()(
 
   def register(): Action[UserRegisterParameter] = Action(parse.json[UserRegisterParameter]) { implicit request =>
     NamedDB(Symbol("taxi_order")) localTx { implicit session =>
-      new UserRegistrator(request.body).createUserFrom()
+      new UserRegistrator(request.body).register()
     } match {
       case Right(_) => Ok("")
       case Left(_) => BadRequest("")

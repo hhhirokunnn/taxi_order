@@ -4,7 +4,7 @@ GET     /users/logout   controllers.users.UserController.logout
 
 POST     /orders   controllers.orders.OrderController.create
 GET     /orders/own_requests   controllers.orders.OrderController.fetchRequesting
-GET     /orders/list   controllers.orders.OrderController.list
-PUT     /orders/:order_id/accept   controllers.orders.OrderController.orderAccept(order_id: Int)
-PUT     /orders/:order_id/dispatched   controllers.orders.OrderController.orderDispatched(order_id: Int)
-PUT     /orders/:order_id/completed   controllers.orders.OrderController.orderCompleted(order_id: Int)
+GET     /orders/list   controllers.orders.OrderController.fetchAll
+PUT     /orders/:order_id/accept   controllers.orders.OrderController.updateToAccept(order_id: Int)
+PUT     /orders/:order_id/dispatched   controllers.orders.OrderController.updateToDispatched(order_id: Int)
+PUT     /orders/:order_id/completed   controllers.orders.OrderController.updateToCompleted(order_id: Int)
