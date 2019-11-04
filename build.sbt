@@ -13,5 +13,5 @@ libraryDependencies ++= Seq(
   "org.xerial" % "sqlite-jdbc" % "3.28.0",
   "org.scalikejdbc" %% "scalikejdbc" % "3.3.5",
   "org.scalikejdbc" %% "scalikejdbc-config" % "3.3.5",
-  "org.scalikejdbc" % "scalikejdbc-play-initializer_2.12" % "2.6.0",
+  "org.scalikejdbc" %% "scalikejdbc-play-initializer" % "2.7.1-scalikejdbc-3.3",
 )
