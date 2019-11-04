@@ -479,7 +479,7 @@ code
 405
 ```
 
-## PUT /orders/:order_id/complete
+## PUT /orders/:order_id/completed
 
 配車が完了したことを報告するAPI
 

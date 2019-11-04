@@ -6,7 +6,8 @@ import scalikejdbc._
 
 case class OrderRecord(
   id: Int,
-  user_id: Int,
+  passenger_id: Int,
+  crew_id: Option[Int],
   dispatch_point: String,
   order_status: OrderStatus,
   ordered_at: String,
@@ -24,7 +25,8 @@ object OrderRecord extends TaxiOrderSyntaxSupport[OrderRecord]("orders") {
   val * : WrappedResultSet => OrderRecord = set =>
     OrderRecord(
       id = set.int(o.resultName.id),
-      user_id = set.int(o.resultName.user_id),
+      passenger_id = set.int(o.resultName.passenger_id),
+      crew_id = set.intOpt(o.resultName.crew_id),
       dispatch_point = set.string(o.resultName.dispatch_point),
       order_status = OrderStatus.fromString(set.string(o.resultName.order_status)),
       ordered_at = set.string(o.resultName.ordered_at),
