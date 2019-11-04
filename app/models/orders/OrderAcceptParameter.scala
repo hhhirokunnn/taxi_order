@@ -1,6 +1,6 @@
 package models.orders
 
-import play.api.libs.json.{Json, Writes}
+import play.api.libs.json.{Format, Json}
 
 case class OrderAcceptParameter(
   crew_id: Int,
@@ -9,5 +9,5 @@ case class OrderAcceptParameter(
 )
 
 object OrderAcceptParameter {
-  implicit val writes: Writes[OrderAcceptParameter] = Json.writes[OrderAcceptParameter]
+  implicit val format: Format[OrderAcceptParameter] = Json.format[OrderAcceptParameter]
 }

@@ -1,6 +1,6 @@
 package models.orders
 
-import play.api.libs.json.{Json, Writes}
+import play.api.libs.json.{Format, Json}
 
 case class OrderRequestParameter(
   dispatch_point: String,
@@ -8,5 +8,5 @@ case class OrderRequestParameter(
 
 object OrderRequestParameter {
 
-  implicit val writes: Writes[OrderRequestParameter] = Json.writes[OrderRequestParameter]
+  implicit val format: Format[OrderRequestParameter] = Json.format[OrderRequestParameter]
 }

@@ -1,9 +1,9 @@
 package repositories.orders
 
-import scalikejdbc.interpolation.Implicits._
 import scalikejdbc.{DBSession, update, withSQL}
 import OrderRecord.o
 import models.orders.OrderStatus.{Accepted, Completed, Dispatched}
+import repositories.internal.SqlDateTime
 
 class OrderUpdater(orderId: Int) {
 
@@ -16,7 +16,7 @@ class OrderUpdater(orderId: Int) {
           o.order_status -> Accepted.label,
         )
         .where
-        .eq(o.order_id, orderId)
+        .eq(o.id, orderId)
     }.update().apply()
   }
 
@@ -24,11 +24,11 @@ class OrderUpdater(orderId: Int) {
     withSQL {
       update(OrderRecord as o)
         .set(
-          o.dispatched_at -> sqls"DATETIME('now', '+9 hours')",
+          o.dispatched_at -> SqlDateTime.now,
           o.order_status -> Dispatched.label,
         )
         .where
-        .eq(o.order_id, orderId)
+        .eq(o.id, orderId)
         .and
         .eq(o.crew_id, crew_id)
     }.update().apply()
@@ -38,11 +38,11 @@ class OrderUpdater(orderId: Int) {
     withSQL {
       update(OrderRecord as o)
         .set(
-          o.completed_at -> sqls"DATETIME('now', '+9 hours')",
+          o.completed_at -> SqlDateTime.now,
           o.order_status -> Completed.label,
         )
         .where
-        .eq(o.order_id, orderId)
+        .eq(o.id, orderId)
         .and
         .eq(o.crew_id, crew_id)
     }.update().apply()
