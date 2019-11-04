@@ -11,7 +11,8 @@ CREATE TABLE `users` (
 );
 CREATE TABLE `orders` (
     `id` INTEGER PRIMARY KEY,
-    `user_id` INTEGER NOT NULL,
+    `passenger_id` INTEGER NOT NULL,
+    `crew_id` INTEGER,
     `dispatch_point` TEXT NOT NULL,
     `order_status` TEXT NOT NULL DEFAULT 'requested',
     `ordered_at` TEXT NOT NULL DEFAULT (DATETIME('now', '+9 hours')),
@@ -20,7 +21,7 @@ CREATE TABLE `orders` (
     `completed_at` TEXT,
     `created_at` TEXT NOT NULL DEFAULT (DATETIME('now', '+9 hours')),
     `updated_at` TEXT NOT NULL DEFAULT (DATETIME('now', '+9 hours')),
-    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (passenger_id) REFERENCES users(id),
     CHECK(order_status = 'requested' or order_status = 'accepted'  or order_status = 'dispatched' or order_status = 'completed')
 );
 CREATE TRIGGER trigger_users_updated_at AFTER UPDATE ON users
