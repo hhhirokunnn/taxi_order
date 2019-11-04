@@ -2,5 +2,9 @@ POST     /users/register   controllers.users.UserController.register
 GET     /users/login   controllers.users.UserController.login
 GET     /users/logout   controllers.users.UserController.logout
 
-GET     /orders/own_requests   controllers.orders.OrderController.fetchRequested
+POST     /orders   controllers.orders.OrderController.create
+GET     /orders/own_requests   controllers.orders.OrderController.fetchRequesting
 GET     /orders/list   controllers.orders.OrderController.list
+PUT     /orders/:order_id/accept   controllers.orders.OrderController.orderAccept(order_id: Int)
+PUT     /orders/:order_id/dispatched   controllers.orders.OrderController.orderDispatched(order_id: Int)
+PUT     /orders/:order_id/completed   controllers.orders.OrderController.orderCompleted(order_id: Int)

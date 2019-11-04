@@ -6,7 +6,37 @@ import models.orders.OrderStatus
 
 class OrderSelector(implicit session: DBSession) {
 
-  def selectRequestedOrderBy(passenger_id: Int): Option[OrderRecord] = {
+  def selectRequestedOrderBy(order_id: Int): Option[OrderRecord] = {
+    withSQL {
+      select.from(OrderRecord as o)
+        .where
+        .eq(o.id, order_id)
+        .and
+        .eq(o.order_status, OrderStatus.Requested.label)
+    }.map(OrderRecord.*).first.apply()
+  }
+
+  def selectAcceptedOrderBy(order_id: Int): Option[OrderRecord] = {
+    withSQL {
+      select.from(OrderRecord as o)
+        .where
+        .eq(o.id, order_id)
+        .and
+        .eq(o.order_status, OrderStatus.Accepted.label)
+    }.map(OrderRecord.*).first.apply()
+  }
+
+  def selectDispatchedOrderBy(order_id: Int): Option[OrderRecord] = {
+    withSQL {
+      select.from(OrderRecord as o)
+        .where
+        .eq(o.id, order_id)
+        .and
+        .eq(o.order_status, OrderStatus.Dispatched.label)
+    }.map(OrderRecord.*).first.apply()
+  }
+
+  def selectRequestingOrderBy(passenger_id: Int): Option[OrderRecord] = {
     withSQL {
       select.from(OrderRecord as o)
         .where

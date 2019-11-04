@@ -7,7 +7,7 @@ import repositories.internal.SqlDateTime
 
 class OrderUpdater(orderId: Int) {
 
-  def orderAcceptFrom(fragment: OrderAcceptFragment)(implicit session: DBSession): Unit = {
+  def makeAcceptFrom(fragment: OrderAcceptFragment)(implicit session: DBSession): Unit = {
     withSQL {
       update(OrderRecord as o)
         .set(
@@ -20,7 +20,7 @@ class OrderUpdater(orderId: Int) {
     }.update().apply()
   }
 
-  def orderDispatched(crew_id: Int)(implicit session: DBSession): Unit = {
+  def makeDispatched(crew_id: Int)(implicit session: DBSession): Unit = {
     withSQL {
       update(OrderRecord as o)
         .set(
@@ -34,7 +34,7 @@ class OrderUpdater(orderId: Int) {
     }.update().apply()
   }
 
-  def orderCompleted(crew_id: Int)(implicit session: DBSession): Unit = {
+  def makeCompleted(crew_id: Int)(implicit session: DBSession): Unit = {
     withSQL {
       update(OrderRecord as o)
         .set(

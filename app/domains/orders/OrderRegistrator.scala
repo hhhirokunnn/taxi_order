@@ -8,7 +8,7 @@ import scala.util.Try
 
 class OrderRegistrator(passenger_id: Int, parameter: OrderRequestParameter)(implicit session: DBSession) {
 
-  def createOrder(): Either[OrderRegistratorError, Unit] =
+  def createOrder(): Either[OrderRegisterError, Unit] =
     ensureActiveOrder() match {
       case Some(_) => Left(new OverLimitRequestedOrderError(passenger_id))
       case _ => insert()
@@ -16,10 +16,10 @@ class OrderRegistrator(passenger_id: Int, parameter: OrderRequestParameter)(impl
 
   private def insert() = Try {
     OrderInserter.insertFrom(toFragment)
-  }.toEither.left.map(new UnexpectedOrderRegistratorError(_))
+  }.toEither.left.map(new UnexpectedOrderRegisterError(_))
 
   private def ensureActiveOrder() = {
-    new OrderSelector().selectRequestedOrderBy(passenger_id)
+    new OrderSelector().selectRequestingOrderBy(passenger_id)
   }
 
   private def toFragment = {

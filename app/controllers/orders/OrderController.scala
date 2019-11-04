@@ -1,9 +1,9 @@
 package controllers.orders
 
-import domains.orders.{OrderFinder, OrderRegistrator}
+import domains.orders.{OrderFinder, OrderRegistrator, OrderRenewaler}
 import javax.inject.{Inject, Singleton}
 import models.Results
-import models.orders.OrderRequestParameter
+import models.orders.{OrderAcceptParameter, OrderRequestParameter}
 import play.api.Configuration
 import play.api.libs.json.Json
 import play.api.mvc.{AbstractController, Action, AnyContent, ControllerComponents}
@@ -33,11 +33,38 @@ class OrderController @Inject()(
     }
   }
 
-  def fetchRequested(): Action[AnyContent] = Action { implicit request =>
+  def fetchRequesting(): Action[AnyContent] = Action { implicit request =>
     NamedDB(Symbol("taxi_order")) readOnly { implicit session =>
-      new OrderFinder().findRequestedOrder(1)
+      new OrderFinder().findRequestingOrderBy(1)
     } match {
       case Right(order) => Ok(Json.toJson(order))
+      case Left(_) => BadRequest("")
+    }
+  }
+
+  def orderAccept(order_id: Int): Action[OrderAcceptParameter] = Action(parse.json[OrderAcceptParameter]) { implicit request =>
+    NamedDB(Symbol("taxi_order")) localTx { implicit session =>
+      new OrderRenewaler(order_id).makeAcceptFrom(request.body)
+    } match {
+      case Right(_) => Ok("")
+      case Left(_) => BadRequest("")
+    }
+  }
+
+  def orderDispatched(order_id: Int): Action[AnyContent] = Action { implicit request =>
+    NamedDB(Symbol("taxi_order")) localTx { implicit session =>
+      new OrderRenewaler(order_id).makeDispatched(1)
+    } match {
+      case Right(_) => Ok("")
+      case Left(_) => BadRequest("")
+    }
+  }
+
+  def orderCompleted(order_id: Int): Action[AnyContent] = Action { implicit request =>
+    NamedDB(Symbol("taxi_order")) localTx { implicit session =>
+      new OrderRenewaler(order_id).makeCompleted(1)
+    } match {
+      case Right(_) => Ok("")
       case Left(_) => BadRequest("")
     }
   }
