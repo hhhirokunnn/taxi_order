@@ -137,6 +137,7 @@ code
 乗客が特定の住所からタクシーの配車を要請するAPI
 
 - リクエストしたユーザの会員種別が `passenger` の場合のみ処理が成功します
+- 配車未完了の注文がある場合は注文できません
 
 ### Request
 
@@ -265,13 +266,15 @@ Example
 Content-Type: application/json
 
 {
-    "order_id": 1,
-    "dispatch_point": "東京都新宿区西新宿２丁目８−１",
-    "order_status": "requested",
-    "ordered_at": "2019-11-01"T01:50:11",
-    "estimated_dispatched_at": "2019-11-01"T01:50:11+09:00",
-    "dispatched_at": "2019-11-01"T01:50:11+09:00",
-    "updated_at": "2019-11-01"T01:50:11+09:00",
+    "results": [
+        "order_id": 1,
+        "dispatch_point": "東京都新宿区西新宿２丁目８−１",
+        "order_status": "requested",
+        "ordered_at": "2019-11-01"T01:50:11",
+        "estimated_dispatched_at": "2019-11-01"T01:50:11+09:00",
+        "dispatched_at": "2019-11-01"T01:50:11+09:00",
+        "updated_at": "2019-11-01"T01:50:11+09:00"
+    ]
 }
 ```
 
