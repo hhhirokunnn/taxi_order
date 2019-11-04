@@ -1,6 +1,6 @@
 package models.users
 
-import play.api.libs.json.{Json, Writes}
+import play.api.libs.json.{Format, Json}
 
 case class UserLoginParameter(
   mail_address: String,
@@ -9,5 +9,5 @@ case class UserLoginParameter(
 
 object UserLoginParameter {
 
-  implicit val writes: Writes[UserLoginParameter] = Json.writes[UserLoginParameter]
+  implicit val format: Format[UserLoginParameter] = Json.format[UserLoginParameter]
 }

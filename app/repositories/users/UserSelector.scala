@@ -29,6 +29,14 @@ object UserSelector {
     }.map(UserRecord.*).first.apply()
   }
 
+  def selectUserBy(mailAddress: String)(implicit session: DBSession): Option[UserRecord] = {
+    withSQL {
+      select.from(UserRecord as u)
+        .where
+        .eq(u.mail_address, mailAddress)
+    }.map(UserRecord.*).first.apply()
+  }
+
   def selectPassengerBy(id: Int)(implicit session: DBSession): Option[UserRecord] = {
     withSQL {
       select.from(UserRecord as u)
