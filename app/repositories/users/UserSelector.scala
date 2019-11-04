@@ -1,8 +1,8 @@
 package repositories.users
 
-import scalikejdbc.DB
+import scalikejdbc.{DBSession, NamedDB, select, withSQL}
 import scalikejdbc.config.DBs
-import scalikejdbc.interpolation.Implicits._
+import UserRecord.u
 
 object UserSelector {
 
@@ -10,10 +10,16 @@ object UserSelector {
 
     DBs.setupAll()
 
-    val Some(greeting) = DB localTx { implicit session =>
-      sql" SELECT 'HELLO TaxiOrder!' as res".map(_.string("res")).first.apply()
+    val Some(user) = NamedDB(Symbol("taxi_order")) localTx { implicit session =>
+      selectById(1)
     }
 
-    println(greeting)
+    println(user)
+  }
+
+  def selectById(id: Int)(implicit session: DBSession): Option[UserRecord] = {
+    withSQL {
+      select.from(UserRecord as u).where.eq(u.id, id)
+    }.map(UserRecord.*).first.apply()
   }
 }
