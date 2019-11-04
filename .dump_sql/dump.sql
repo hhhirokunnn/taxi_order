@@ -1,5 +1,6 @@
 BEGIN TRANSACTION;
 PRAGMA foreign_keys=ON;
+PRAGMA encoding = "UTF-8";
 CREATE TABLE `users` (
     `id` INTEGER PRIMARY KEY,
     `mail_address` TEXT NOT NULL UNIQUE,
