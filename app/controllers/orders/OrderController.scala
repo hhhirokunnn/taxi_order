@@ -1,6 +1,6 @@
 package controllers.orders
 
-import controllers.auth.AuthAction
+import controllers.auth.{AuthAction, Authenticator, CrewAuthAction, PassengerAuthAction}
 import domains.orders.{OrderFinder, OrderRegistrator, OrderRenewaler}
 import javax.inject.{Inject, Singleton}
 import models.Results
@@ -14,19 +14,22 @@ import scalikejdbc.NamedDB
 class OrderController @Inject()(
   cc: ControllerComponents,
   authAction: AuthAction,
+  crewAuthAction: CrewAuthAction,
+  passengerAuthAction: PassengerAuthAction,
   val config: Configuration
 ) extends AbstractController(cc) {
 
-  def create(): Action[OrderRequestParameter] = Action(parse.json[OrderRequestParameter]) { implicit request =>
+  def create(): Action[OrderRequestParameter] = passengerAuthAction(parse.json[OrderRequestParameter]) { implicit request =>
     NamedDB(Symbol("taxi_order")) autoCommit { implicit session =>
-      new OrderRegistrator(1, request.body).register()
+      val Some(id) = request.session.get(Authenticator.SessionTokenId).map(_.toInt)
+      new OrderRegistrator(id, request.body).register()
     } match {
       case Right(_) => Ok("")
       case Left(_) => BadRequest("")
     }
   }
 
-  def fetchAll(): Action[AnyContent] = Action { implicit request =>
+  def fetchAll(): Action[AnyContent] = crewAuthAction { implicit request =>
     NamedDB(Symbol("taxi_order")) readOnly { implicit session =>
       new OrderFinder().findAll()
     } match {
@@ -35,36 +38,40 @@ class OrderController @Inject()(
     }
   }
 
-  def fetchRequesting(): Action[AnyContent] = Action { implicit request =>
+  def fetchRequesting(): Action[AnyContent] = passengerAuthAction { implicit request =>
     NamedDB(Symbol("taxi_order")) readOnly { implicit session =>
-      new OrderFinder().findRequestingOrderBy(1)
+      val Some(id) = request.session.get(Authenticator.SessionTokenId).map(_.toInt)
+      new OrderFinder().findRequestingOrderBy(id)
     } match {
       case Right(order) => Ok(Json.toJson(order))
       case Left(_) => BadRequest("")
     }
   }
 
-  def updateToAccept(order_id: Int): Action[OrderAcceptParameter] = Action(parse.json[OrderAcceptParameter]) { implicit request =>
+  def updateToAccept(order_id: Int): Action[OrderAcceptParameter] = crewAuthAction(parse.json[OrderAcceptParameter]) { implicit request =>
     NamedDB(Symbol("taxi_order")) autoCommit { implicit session =>
-      new OrderRenewaler(order_id).makeAcceptFrom(request.body, 1)
+      val Some(id) = request.session.get(Authenticator.SessionTokenId).map(_.toInt)
+      new OrderRenewaler(order_id).makeAcceptFrom(request.body, id)
     } match {
       case Right(_) => Ok("")
       case Left(_) => BadRequest("")
     }
   }
 
-  def updateToDispatched(order_id: Int): Action[AnyContent] = Action { implicit request =>
+  def updateToDispatched(order_id: Int): Action[AnyContent] = crewAuthAction { implicit request =>
     NamedDB(Symbol("taxi_order")) autoCommit { implicit session =>
-      new OrderRenewaler(order_id).makeDispatched(1)
+      val Some(id) = request.session.get(Authenticator.SessionTokenId).map(_.toInt)
+      new OrderRenewaler(order_id).makeDispatched(id)
     } match {
       case Right(_) => Ok("")
       case Left(_) => BadRequest("")
     }
   }
 
-  def updateToCompleted(order_id: Int): Action[AnyContent] = Action { implicit request =>
+  def updateToCompleted(order_id: Int): Action[AnyContent] = crewAuthAction { implicit request =>
     NamedDB(Symbol("taxi_order")) autoCommit { implicit session =>
-      new OrderRenewaler(order_id).makeCompleted(1)
+      val Some(id) = request.session.get(Authenticator.SessionTokenId).map(_.toInt)
+      new OrderRenewaler(order_id).makeCompleted(id)
     } match {
       case Right(_) => Ok("")
       case Left(_) => BadRequest("")

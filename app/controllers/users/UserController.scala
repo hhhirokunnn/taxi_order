@@ -7,7 +7,6 @@ import models.users.{UserLoginParameter, UserRegisterParameter}
 import play.api.Configuration
 import play.api.mvc.{AbstractController, Action, AnyContent, ControllerComponents, Request}
 import scalikejdbc.NamedDB
-import scalikejdbc.config.DBs
 
 @Singleton
 class UserController @Inject()(
@@ -29,11 +28,7 @@ class UserController @Inject()(
     NamedDB(Symbol("taxi_order")) autoCommit { implicit session =>
       new UserFinder().findBy(request.body)
     } match {
-      case Right(Some(user)) => Ok("").withSession(
-        Authenticator.SessionTokenId -> user.id.toString
-      ).addingToSession(
-        Authenticator.SessionTokenType -> user.member_type.label
-      )
+      case Right(Some(user)) => Ok("").withSession(Authenticator.SessionTokenId -> user.id.toString)
       case _ => BadRequest("")
     }
   }
