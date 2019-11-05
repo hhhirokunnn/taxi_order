@@ -5,7 +5,7 @@ import scalikejdbc.{DBSession, NamedDB, withSQL, insert}
 object UserInserter {
 
   def insertFrom(fragment: UserInsertFragment)(implicit session: DBSession): Unit =
-    NamedDB(Symbol("taxi_order")) localTx { implicit session =>
+    NamedDB(Symbol("taxi_order")) autoCommit { implicit session =>
       withSQL {
         insert
           .into(UserRecord)

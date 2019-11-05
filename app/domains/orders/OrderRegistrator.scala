@@ -18,6 +18,10 @@ class OrderRegistrator(passenger_id: Int, parameter: OrderRequestParameter)(impl
     OrderInserter.insertFrom(toFragment)
   }.toEither.left.map(new UnexpectedOrderRegisterError(_))
 
+  private def ensurePassenger() = {
+    new OrderSelector().selectRequestingOrderBy(passenger_id)
+  }
+
   private def ensureRequestedOrder() = {
     new OrderSelector().selectRequestingOrderBy(passenger_id)
   }

@@ -1,23 +1,11 @@
 package repositories.users
 
-import scalikejdbc.{DBSession, NamedDB, select, withSQL}
-import scalikejdbc.config.DBs
+import scalikejdbc.{DBSession, select, withSQL}
 import UserRecord.u
 import models.users.UserMemberType.{Crew, Passenger}
 import models.users.UserLoginParameter
 
 object UserSelector {
-
-  def main(args: Array[String]): Unit = {
-
-    DBs.setupAll()
-
-    val Some(user) = NamedDB(Symbol("taxi_order")) localTx { implicit session =>
-      selectPassengerBy(1)
-    }
-
-    println(user)
-  }
 
   def selectUserBy(parameter: UserLoginParameter)(implicit session: DBSession): Option[UserRecord] = {
     withSQL {

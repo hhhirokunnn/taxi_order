@@ -1,5 +1,6 @@
 package controllers.orders
 
+import controllers.auth.AuthAction
 import domains.orders.{OrderFinder, OrderRegistrator, OrderRenewaler}
 import javax.inject.{Inject, Singleton}
 import models.Results
@@ -12,11 +13,12 @@ import scalikejdbc.NamedDB
 @Singleton
 class OrderController @Inject()(
   cc: ControllerComponents,
+  authAction: AuthAction,
   val config: Configuration
 ) extends AbstractController(cc) {
 
   def create(): Action[OrderRequestParameter] = Action(parse.json[OrderRequestParameter]) { implicit request =>
-    NamedDB(Symbol("taxi_order")) localTx { implicit session =>
+    NamedDB(Symbol("taxi_order")) autoCommit { implicit session =>
       new OrderRegistrator(1, request.body).register()
     } match {
       case Right(_) => Ok("")
@@ -43,7 +45,7 @@ class OrderController @Inject()(
   }
 
   def updateToAccept(order_id: Int): Action[OrderAcceptParameter] = Action(parse.json[OrderAcceptParameter]) { implicit request =>
-    NamedDB(Symbol("taxi_order")) localTx { implicit session =>
+    NamedDB(Symbol("taxi_order")) autoCommit { implicit session =>
       new OrderRenewaler(order_id).makeAcceptFrom(request.body, 1)
     } match {
       case Right(_) => Ok("")
@@ -52,7 +54,7 @@ class OrderController @Inject()(
   }
 
   def updateToDispatched(order_id: Int): Action[AnyContent] = Action { implicit request =>
-    NamedDB(Symbol("taxi_order")) localTx { implicit session =>
+    NamedDB(Symbol("taxi_order")) autoCommit { implicit session =>
       new OrderRenewaler(order_id).makeDispatched(1)
     } match {
       case Right(_) => Ok("")
@@ -61,7 +63,7 @@ class OrderController @Inject()(
   }
 
   def updateToCompleted(order_id: Int): Action[AnyContent] = Action { implicit request =>
-    NamedDB(Symbol("taxi_order")) localTx { implicit session =>
+    NamedDB(Symbol("taxi_order")) autoCommit { implicit session =>
       new OrderRenewaler(order_id).makeCompleted(1)
     } match {
       case Right(_) => Ok("")

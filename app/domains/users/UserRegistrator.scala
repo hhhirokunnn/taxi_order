@@ -17,18 +17,16 @@ class UserRegistrator(parameter: UserRegisterParameter)(implicit session: DBSess
     UserInserter.insertFrom(toFragment)
   }.toEither.left.map(new UnexpectedUserRegistrationError(_))
 
-  private def ensureMailAddress() = {
+  private def ensureMailAddress() =
     UserSelector.selectUserBy(parameter.mail_address) match {
-      case None => Right()
+      case None => Right({})
       case _ => Left(new DuplicatedMailAddressError(parameter.mail_address))
     }
-  }
 
-  private def toFragment = {
+  private def toFragment =
     UserInsertFragment(
       mail_address = parameter.mail_address,
       password = parameter.password,
       member_type = parameter.member_type,
     )
-  }
 }
