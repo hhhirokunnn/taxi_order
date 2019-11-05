@@ -6,6 +6,9 @@ import scalikejdbc.config.DBs
 
 import scala.concurrent.{ExecutionContext, Future}
 
+/**
+ * コントローラでDBのセットアップを共通化するためのモジュール
+ */
 @Singleton
 class AppStart @Inject()(lifecycle: ApplicationLifecycle)(
   implicit ec: ExecutionContext

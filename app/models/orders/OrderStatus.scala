@@ -3,6 +3,10 @@ package models.orders
 import play.api.libs.json.{Reads, Writes}
 import scalikejdbc.ParameterBinderFactory
 
+/**
+ * 注文状態を表現するためのクラス
+ * @param label 状態
+ */
 abstract class OrderStatus(val label: String)
 
 object OrderStatus {

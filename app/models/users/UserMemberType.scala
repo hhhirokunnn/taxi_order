@@ -3,6 +3,10 @@ package models.users
 import play.api.libs.json.{Reads, Writes}
 import scalikejdbc.ParameterBinderFactory
 
+/**
+ * 会員の種別を表現するためのクラス
+ * @param label 種別
+ */
 sealed abstract class UserMemberType(val label: String)
 
 object UserMemberType {

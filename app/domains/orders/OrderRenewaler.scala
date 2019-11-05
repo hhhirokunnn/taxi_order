@@ -9,20 +9,29 @@ import scala.util.Try
 
 class OrderRenewaler(order_id: Int)(implicit session: DBSession) {
 
+  /**
+   * 運転手が注文に対して配車回答するためのロジック
+   */
   def makeAcceptFrom(param: OrderAcceptParameter, crew_id: Int): Either[OrderRenewalerError, Unit] = {
     val selector = new OrderSelector()
     for {
       order <- find(selector.selectRequestedOrderBy)
-      _ <- ensureUpdatedAt(order, order.updated_at)
+      _ <- ensureUpdatedAt(order, param.updated_at)
       _ <- update(param, crew_id)
     } yield {}
   }
 
+  /**
+   * 運転手が注文に対して到着報告するためのロジック
+   */
   def makeDispatched(crew_id: Int): Either[OrderRenewalerError, Unit] = {
     val selector = new OrderSelector()
     updateToNextStatus(crew_id, selector.selectAcceptedOrderBy)
   }
 
+  /**
+   * 運転手が注文に対して営業完了報告するためのロジック
+   */
   def makeCompleted(crew_id: Int): Either[OrderRenewalerError, Unit] = {
     val selector = new OrderSelector()
     updateToNextStatus(crew_id, selector.selectDispatchedOrderBy)
@@ -36,6 +45,10 @@ class OrderRenewaler(order_id: Int)(implicit session: DBSession) {
     } yield {}
   }
 
+
+  /**
+   * 注文状態を更新するユーザ(運転手)IDが正しいかチェックする
+   */
   private def ensureCrewId(order: OrderRecord, crew_id: Int) = {
     order.crew_id match {
       case Some(id) if (id == crew_id) => Right({})
@@ -43,6 +56,9 @@ class OrderRenewaler(order_id: Int)(implicit session: DBSession) {
     }
   }
 
+  /**
+   * 楽観ロック
+   */
   private def ensureUpdatedAt(orderRecord: OrderRecord, date: String) = {
     if (orderRecord.updated_at == date) Right({}) else Left(new OptimisticLock(orderRecord.id))
   }

@@ -15,6 +15,9 @@ class UserController @Inject()(
   val config: Configuration
 ) extends AbstractController(cc) {
 
+  /**
+   * 会員登録するAPI
+   */
   def register(): Action[UserRegisterParameter] = Action(parse.json[UserRegisterParameter]) { implicit request =>
     NamedDB(Symbol("taxi_order")) autoCommit { implicit session =>
       new UserRegistrator(request.body).register()
@@ -24,6 +27,9 @@ class UserController @Inject()(
     }
   }
 
+  /**
+   * ログインするAPI
+   */
   def login(): Action[UserLoginParameter] = Action(parse.json[UserLoginParameter]) { implicit request =>
     NamedDB(Symbol("taxi_order")) autoCommit { implicit session =>
       new UserFinder().findBy(request.body)
@@ -33,6 +39,9 @@ class UserController @Inject()(
     }
   }
 
+  /**
+   * ログアウトするAPI
+   */
   def logout(): Action[AnyContent] = authAction { implicit request: Request[AnyContent] =>
     Ok("").withNewSession
   }

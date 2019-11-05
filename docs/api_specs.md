@@ -87,6 +87,8 @@ Content-Type: application/json
 
 ### Response
 
+CookieにSessionTokenとして暗号化されたuserIdをセットする
+
 #### ログイン成功
 
 code
@@ -120,11 +122,11 @@ code
 200
 ```
 
-#### ログイン前のユーザからのリクエスト
+#### SessionTokenがないリクエスト
 
 code
 ```
-405
+401
 ```
 
 ## POST /orders
@@ -179,7 +181,7 @@ code
 
 code
 ```
-405
+401
 ```
 
 ## GET /orders/list
@@ -255,13 +257,15 @@ Content-Type: application/json
 
 {
     "results": [
-        "order_id": 1,
-        "dispatch_point": "東京都新宿区西新宿２丁目８−１",
-        "order_status": "requested",
-        "ordered_at": "2019-11-01 01:50:11",
-        "estimated_dispatched_at": "2019-11-01 01:50:11",
-        "dispatched_at": "2019-11-01 01:50:11",
-        "updated_at": "2019-11-01 01:50:11"
+        {
+            "order_id": 1,
+            "dispatch_point": "東京都新宿区西新宿２丁目８−１",
+            "order_status": "requested",
+            "ordered_at": "2019-11-01 01:50:11",
+            "estimated_dispatched_at": "2019-11-01 01:50:11",
+            "dispatched_at": "2019-11-01 01:50:11",
+            "updated_at": "2019-11-01 01:50:11"
+        }
     ]
 }
 ```
@@ -277,7 +281,7 @@ code
 
 code
 ```
-405
+401
 ```
 
 ## GET /orders/own_requests
@@ -363,7 +367,7 @@ code
 
 code
 ```
-405
+401
 ```
 
 ## PUT /orders/:order_id/accept
@@ -433,7 +437,7 @@ code
 
 code
 ```
-405
+401
 ```
 
 ## PUT /orders/:order_id/dispatched
@@ -476,12 +480,12 @@ code
 
 code
 ```
-405
+401
 ```
 
 ## PUT /orders/:order_id/completed
 
-配車が完了したことを報告するAPI
+注文が完了したことを報告するAPI
 
 - リクエストしたユーザの会員種別が `crew` の場合のみ処理が成功します
 - 対象の注文の `order_status` が `dispatched` である時のみ処理が成功します
@@ -519,5 +523,5 @@ code
 
 code
 ```
-405
+401
 ```

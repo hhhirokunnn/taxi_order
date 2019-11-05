@@ -2,6 +2,11 @@ package models
 
 import play.api.libs.json.{JsPath, Writes}
 
+/**
+ * 配列のレスポンス用のクラス
+ * @param results 配列のキー
+ * @tparam A
+ */
 case class Results[A](
   results: Seq[A]
 )

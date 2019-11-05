@@ -5,6 +5,11 @@ import play.api.mvc._
 
 import scala.concurrent.{ExecutionContext, Future}
 
+/**
+ * ログインしたユーザの認証ロジック
+ * @param parser
+ * @param ec
+ */
 // https://www.playframework.com/documentation/2.7.x/ScalaActionsComposition#Custom-action-builders
 class AuthAction @Inject()(parser: BodyParsers.Default)(implicit ec: ExecutionContext)
   extends ActionBuilderImpl(parser) {

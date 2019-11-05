@@ -7,7 +7,11 @@ import scalikejdbc.NamedDB
 
 import scala.concurrent.{ExecutionContext, Future}
 
-// https://www.playframework.com/documentation/2.7.x/ScalaActionsComposition#Custom-action-builders
+/**
+ * ログインしたユーザ(運転手)の認証ロジック
+ * @param parser
+ * @param ec
+ */
 class CrewAuthAction @Inject()(parser: BodyParsers.Default)(implicit ec: ExecutionContext)
   extends ActionBuilderImpl(parser) {
   override def invokeBlock[A](
